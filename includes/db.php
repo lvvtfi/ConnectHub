@@ -1,6 +1,6 @@
 <?php
-$host     = 'localhost'; // Ganti dengan host database Anda
-$dbname   = 'imfvqdhp_social_media'; // Nama database
+$host     = 'localhost'; 
+$dbname   = 'imfvqdhp_social_media'; // database
 $username = 'imfvqdhp_social_user'; // Username database
 $password = 'juspnN5cC_i4Pm@'; // Password database
 
