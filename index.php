@@ -142,84 +142,82 @@ try {
     if (empty($selectedCategoryIds)) {
         // If no category filter, use normal query
         $postsQuery = "
-    SELECT 
-        p.id, 
-        p.content, 
-        p.file_url, 
-        p.file_type, 
-        p.created_at, 
-        u.username,
-        COUNT(DISTINCT CASE WHEN i.action = 'like' THEN i.id END) as likes,
-        COUNT(DISTINCT CASE WHEN i.action = 'dislike' THEN i.id END) as dislikes,
-        COUNT(DISTINCT c.id) as comment_count,
-        MAX(CASE WHEN i.user_identifier = :user_identifier AND i.action IN ('like', 'dislike') THEN i.action ELSE NULL END) as user_action,
-        GROUP_CONCAT(DISTINCT cat.name ORDER BY cat.name SEPARATOR ',') as categories,
-        GROUP_CONCAT(DISTINCT cat.id ORDER BY cat.name SEPARATOR ',') as category_ids
-    FROM posts p
-    LEFT JOIN users u ON p.user_id = u.id
-    LEFT JOIN interactions i ON p.id = i.post_id
-    LEFT JOIN post_categories pc ON p.id = pc.post_id
-    LEFT JOIN categories cat ON pc.category_id = cat.id
-    LEFT JOIN comments c ON p.id = c.post_id
-    WHERE p.id NOT IN (
-        SELECT post_id FROM interactions 
-        WHERE user_identifier = :user_identifier AND action = 'not_interested'
-    )
-    GROUP BY p.id, p.content, p.file_url, p.file_type, p.created_at, u.username
-    ORDER BY p.created_at DESC
-";
+            SELECT 
+                p.id, 
+                p.content, 
+                p.file_url, 
+                p.file_type, 
+                p.created_at, 
+                u.username,
+                COUNT(DISTINCT CASE WHEN i.action = 'like' THEN i.id END) as likes,
+                COUNT(DISTINCT CASE WHEN i.action = 'dislike' THEN i.id END) as dislikes,
+                COUNT(DISTINCT c.id) as comment_count,
+                MAX(CASE WHEN i.user_identifier = :user_identifier AND i.action IN ('like', 'dislike') THEN i.action ELSE NULL END) as user_action,
+                GROUP_CONCAT(DISTINCT cat.name ORDER BY cat.name SEPARATOR ',') as categories,
+                GROUP_CONCAT(DISTINCT cat.id ORDER BY cat.name SEPARATOR ',') as category_ids
+            FROM posts p
+            LEFT JOIN users u ON p.user_id = u.id
+            LEFT JOIN interactions i ON p.id = i.post_id
+            LEFT JOIN post_categories pc ON p.id = pc.post_id
+            LEFT JOIN categories cat ON pc.category_id = cat.id
+            LEFT JOIN comments c ON p.id = c.post_id
+            WHERE p.id NOT IN (
+                SELECT post_id FROM interactions 
+                WHERE user_identifier = :user_identifier AND action = 'not_interested'
+            )
+            GROUP BY p.id, p.content, p.file_url, p.file_type, p.created_at, u.username
+            ORDER BY p.created_at DESC
+        ";
         
         $stmt = $pdo->prepare($postsQuery);
         $stmt->execute(['user_identifier' => $_COOKIE['user_identifier']]);
-        $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
     } 
     else {
-        // NOTICE: We're getting categories by name that match
-        // This could be a problem with URL category
-        $stmt = $pdo->prepare("SELECT name FROM categories WHERE id = ?");
-        $stmt->execute([$selectedCategoryIds[0]]);
-        $categoryName = $stmt->fetchColumn();
+        // FIX: Proper filtering by selected categories
+        // Create placeholders for the IN clause
+        $categoryPlaceholders = implode(',', array_fill(0, count($selectedCategoryIds), '?'));
         
-        error_log("Looking for posts in category: " . $categoryName);
-
-        // Simple query using category name to address ID issues
-$postsQuery = "
-    SELECT 
-        p.id, 
-        p.content, 
-        p.file_url, 
-        p.file_type, 
-        p.created_at, 
-        u.username,
-        COUNT(DISTINCT CASE WHEN i.action = 'like' THEN i.id END) as likes,
-        COUNT(DISTINCT CASE WHEN i.action = 'dislike' THEN i.id END) as dislikes,
-        COUNT(DISTINCT c.id) as comment_count,
-        MAX(CASE WHEN i.user_identifier = :user_identifier AND i.action IN ('like', 'dislike') THEN i.action ELSE NULL END) as user_action,
-        GROUP_CONCAT(DISTINCT cat.name ORDER BY cat.name SEPARATOR ',') as categories,
-        GROUP_CONCAT(DISTINCT cat.id ORDER BY cat.name SEPARATOR ',') as category_ids
-    FROM posts p
-    LEFT JOIN users u ON p.user_id = u.id
-    LEFT JOIN interactions i ON p.id = i.post_id
-    LEFT JOIN post_categories pc ON p.id = pc.post_id
-    LEFT JOIN categories cat ON pc.category_id = cat.id
-    LEFT JOIN comments c ON p.id = c.post_id
-    WHERE p.id NOT IN (
-        SELECT post_id FROM interactions 
-        WHERE user_identifier = :user_identifier AND action = 'not_interested'
-    )
-    GROUP BY p.id, p.content, p.file_url, p.file_type, p.created_at, u.username
-    ORDER BY p.created_at DESC
-";
+        $postsQuery = "
+            SELECT 
+                p.id, 
+                p.content, 
+                p.file_url, 
+                p.file_type, 
+                p.created_at, 
+                u.username,
+                COUNT(DISTINCT CASE WHEN i.action = 'like' THEN i.id END) as likes,
+                COUNT(DISTINCT CASE WHEN i.action = 'dislike' THEN i.id END) as dislikes,
+                COUNT(DISTINCT c.id) as comment_count,
+                MAX(CASE WHEN i.user_identifier = ? AND i.action IN ('like', 'dislike') THEN i.action ELSE NULL END) as user_action,
+                GROUP_CONCAT(DISTINCT cat.name ORDER BY cat.name SEPARATOR ',') as categories,
+                GROUP_CONCAT(DISTINCT cat.id ORDER BY cat.name SEPARATOR ',') as category_ids
+            FROM posts p
+            LEFT JOIN users u ON p.user_id = u.id
+            LEFT JOIN interactions i ON p.id = i.post_id
+            JOIN post_categories pc ON p.id = pc.post_id
+            JOIN categories cat ON pc.category_id = cat.id
+            LEFT JOIN comments c ON p.id = c.post_id
+            WHERE p.id NOT IN (
+                SELECT post_id FROM interactions 
+                WHERE user_identifier = ? AND action = 'not_interested'
+            )
+            AND pc.category_id IN ($categoryPlaceholders)
+            GROUP BY p.id, p.content, p.file_url, p.file_type, p.created_at, u.username
+            ORDER BY p.created_at DESC
+        ";
+        
+        // Build parameters array
+        $params = [$_COOKIE['user_identifier'], $_COOKIE['user_identifier']];
+        $params = array_merge($params, $selectedCategoryIds);
         
         $stmt = $pdo->prepare($postsQuery);
-        $stmt->execute([
-            'user_identifier' => $_COOKIE['user_identifier'],
-            'category_name' => $categoryName
-        ]);
-        $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt->execute($params);
         
-        error_log("Found " . count($posts) . " posts in category: " . $categoryName);
+        error_log("Category filter query executed with IDs: " . implode(', ', $selectedCategoryIds));
     }
+    
+    $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    error_log("Found " . count($posts) . " posts after filtering");
     
 } catch (PDOException $e) {
     error_log("Error fetching posts: " . $e->getMessage() . " (Code: " . $e->getCode() . ")");
