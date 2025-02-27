@@ -2,7 +2,7 @@
 // includes/ContentAnalyzer.php
 
 class ContentAnalyzer {
-    // Enhanced keywords for better category detection
+    // Enhanced keywords for better category detection if not using AI code ....
     private $categories = [
        'Politics' => [
             // Indonesian and English keywords for Politics
