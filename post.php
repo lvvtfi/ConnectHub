@@ -2,6 +2,7 @@
 include 'includes/db.php';
 include 'includes/auth.php';
 include 'includes/FileHandler.php';
+include 'includes/config.php';
 include 'includes/ContentAnalyzer.php';
 
 // Aktifkan error reporting untuk debugging
@@ -14,7 +15,7 @@ if (!isLoggedIn()) {
 }
 
 $fileHandler = new FileHandler($pdo);
-$contentAnalyzer = new ContentAnalyzer();
+$contentAnalyzer = new ContentAnalyzer(GEMINI_API_KEY);
 $error = null;
 $success = null;
 $assignedCategories = [];
@@ -65,6 +66,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             // Auto-categorize the post
             $assignedCategories = $contentAnalyzer->assignCategoriesToPost($pdo, $postId, $content);
+            // Tambahkan ini untuk debugging kategorisasi AI Gemini
+$categoryDetails = $contentAnalyzer->debugAnalysis($content);
             error_log("Categories assigned: " . implode(', ', $assignedCategories));
             
             $success = "Post created successfully" . 
@@ -133,6 +136,59 @@ $allCategories = $contentAnalyzer->getAllCategories($pdo);
                 <a href="index.php" class="btn btn-sm btn-primary ms-2">Go to Home</a>
             </div>
         <?php endif; ?>
+        
+        <?php if ($success && isset($categoryDetails)): ?>
+    <div class="card mt-3">
+        <div class="card-header">
+            <h5>Detail Kategorisasi Gemini AI (Mode Debugging)</h5>
+        </div>
+        <div class="card-body">
+            <p><strong>Metode yang digunakan:</strong> <?= $categoryDetails['method'] ?? 'Unknown' ?></p>
+            
+            <?php if (isset($categoryDetails['categories'])): ?>
+                <h6>Kategori yang Terdeteksi:</h6>
+                <?php if (is_array($categoryDetails['categories']) && !isset($categoryDetails['categories']['count'])): ?>
+                    <ul>
+                        <?php foreach ($categoryDetails['categories'] as $category): ?>
+                            <li><?= htmlspecialchars($category) ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php elseif (is_array($categoryDetails['categories'])): ?>
+                    <ul>
+                        <?php foreach ($categoryDetails['categories'] as $category => $details): ?>
+                            <li>
+                                <strong><?= htmlspecialchars($category) ?></strong> 
+                                (<?= $details['count'] ?> kecocokan)
+                                <div class="small text-muted">
+                                    Kata kunci yang cocok: <?= htmlspecialchars(implode(', ', $details['keywords'])) ?>
+                                </div>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php endif; ?>
+            <?php endif; ?>
+            
+            <?php if (isset($categoryDetails['error'])): ?>
+                <div class="alert alert-danger">
+                    <strong>Error:</strong> <?= htmlspecialchars($categoryDetails['error']) ?>
+                </div>
+            <?php endif; ?>
+            
+            <?php if (isset($categoryDetails['api_response']) && is_array($categoryDetails['api_response'])): ?>
+                <div class="mt-3">
+                    <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#apiResponseDetails">
+                        Tampilkan Detail API Response
+                    </button>
+                    <div class="collapse mt-2" id="apiResponseDetails">
+                        <div class="card card-body">
+                            <pre><?= htmlspecialchars(json_encode($categoryDetails['api_response'], JSON_PRETTY_PRINT)) ?></pre>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+<?php endif; ?>
         
         <form action="post.php" method="POST" enctype="multipart/form-data">
             <div class="card">
