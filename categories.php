@@ -2,6 +2,7 @@
 session_start();
 include 'includes/db.php';
 include 'includes/auth.php';
+include 'includes/config.php';
 include 'includes/ContentAnalyzer.php';
 
 // Initialize user identifier cookie if not exists
@@ -11,7 +12,7 @@ if (!isset($_COOKIE['user_identifier'])) {
     $_COOKIE['user_identifier'] = $identifier; // Set for immediate use
 }
 
-$contentAnalyzer = new ContentAnalyzer();
+$contentAnalyzer = new ContentAnalyzer(GEMINI_API_KEY);
 
 // Get all categories
 $allCategories = $contentAnalyzer->getAllCategories($pdo);
