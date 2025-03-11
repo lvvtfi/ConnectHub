@@ -2,120 +2,284 @@
 // includes/ContentAnalyzer.php
 
 class ContentAnalyzer {
-    // Enhanced keywords for better category detection if not using AI code ....
+    // Kategori untuk pencocokkan kata kunci
     private $categories = [
-       'Politics' => [
-            // Indonesian and English keywords for Politics
-            'politik', 'pemerintah', 'pemilu', 'presiden', 'demokrasi', 'parlemen', 'voting', 
-            'campaign', 'partai', 'legislatif', 'gubernur', 'bupati', 'walikota', 'menteri', 
-            'kabinet', 'konstitusi', 'undang-undang', 'propaganda', 'korupsi', 'rakyat', 
-            'negara', 'perpolitikan', 'perang', 'konflik', 'oposisi', 'koalisi', 'kampanye',
-            'pemilihan', 'kebijakan', 'dpr', 'dprd', 'mpr', 'parpol', 'subsidi', 'demonstrasi',
-            'referendum', 'anggaran', 'pancasila', 'uu', 'kpu', 'pilkada', 'pilpres', 'debat',
-            'legislation', 'government', 'president', 'election', 'vote', 'policy', 'politics',
-            'party', 'parliament', 'opposition', 'coalition', 'corruption', 'democracy', 'ballot',
-            'political', 'referendum', 'candidates', 'lobby', 'congress', 'senate', 'civil rights',
-            'vote count', 'political campaign'
-        ],
-        
-        'Technology' => [
-            // Indonesian and English keywords for Technology
-            'teknologi', 'komputer', 'software', 'hardware', 'internet', 'aplikasi', 'digital', 
-            'kode', 'programming', 'ai', 'artificial intelligence', 'smartphone', 'website', 
-            'online', 'startup', 'gadget', 'elektronik', 'inovasi', 'robot', 'otomasi', 
-            'programming', 'coding', 'developer', 'engineer', 'algoritma', 'database', 'server',
-            'cloud', 'cyber', 'app', 'mobile', 'web', 'program', 'komputing', 'interface',
-            'perangkat lunak', 'sistem operasi', 'microsoft', 'google', 'apple', 'android',
-            'ios', 'windows', 'laptop', 'pc', 'processor', 'ram', 'storage', 'virtual reality',
-            'vr', 'augmented reality', 'ar', 'chip', 'firmware', 'encryption', 'password',
-            'security', 'keamanan digital', 'hacker', 'coding', 'network', 'jaringan', 'update',
-            'social media', 'media sosial', 'platform', 'game', 'gaming', 'tech', 'software engineer',
-            'machine learning', 'blockchain', 'iot', 'internet of things', 'cloud computing', 
-            'big data', 'data science', 'tech news', 'web development', 'cybersecurity', 'ai research',
-            'openai', 'chatgpt', 'gpt-4', 'dall-e', 'stable diffusion', 'midjourney', 'deep learning',
-            'neural networks', 'tensorflow', 'python', 'keras', 'automated systems', 'nvidia', 'quantum computing',
-            'artificial general intelligence', 'ai ethics', 'data privacy', 'augmented intelligence', 'chatbot',
-            // Added AI tools
-            'deepseak', 'ngrok', 'claude', 'midjourney', 'huggingface', 'bard', 'bing ai', 'openai api',
-            'chatgpt api', 'deepmind', 'alpha fold', 'cortex', 'eleutherai', 'cerebras', 'cogito', 'stable diffusion',
-            'x.ai', 'replit ai', 'leo ai', 'datasaur', 'perplexity ai', 'pathfinder', 'nvidia ai', 'sentient ai'
-        ],
-        
-        'Entertainment' => [
-            // Indonesian and English keywords for Entertainment
-            'film', 'musik', 'konser', 'selebriti', 'artis', 'aktor', 'aktris', 'televisi', 
-            'tv', 'show', 'hiburan', 'drama', 'komedi', 'penyanyi', 'lagu', 'band', 'bioskop', 
-            'serial', 'sinetron', 'idol', 'bintang', 'panggung', 'teater', 'reality show',
-            'movie', 'cinema', 'hollywood', 'netflix', 'streaming', 'tiktok', 'youtube',
-            'youtuber', 'influencer', 'celebrity', 'entertainer', 'penghargaan', 'award',
-            'oscar', 'festival', 'live', 'perform', 'pertunjukan', 'k-pop', 'pop', 'rock',
-            'jazz', 'dangdut', 'anime', 'manga', 'kartun', 'podcast', 'box office', 'rating',
-            'music festival', 'concert tour', 'tv show', 'awards', 'entertainment industry', 
-            'celebrity gossip', 'tiktok influencer', 'comedy show', 'live performances', 'broadway'
-        ],
-        
-        'Sports' => [
-            // Indonesian and English keywords for Sports
-            'olahraga', 'sepak bola', 'bola', 'basket', 'tenis', 'atlet', 'pertandingan', 
-            'turnamen', 'kejuaraan', 'liga', 'stadion', 'pemain', 'pelatih', 'tim', 'juara', 
-            'medali', 'kompetisi', 'perlombaan', 'gol', 'poin', 'skor', 'piala dunia', 'olimpiade',
-            'football', 'soccer', 'basketball', 'baseball', 'volleyball', 'badminton', 'silat',
-            'martial arts', 'boxing', 'tinju', 'swimming', 'renang', 'running', 'marathon',
-            'athlete', 'coach', 'referee', 'wasit', 'transfer', 'club', 'gym', 'fitness',
-            'stadium', 'world cup', 'euro', 'champions', 'premier league', 'serie a', 'la liga',
-            'rugby', 'ice hockey', 'e-sports', 'motorsport', 'f1', 'motogp', 'tour de france', 'olympics', 'tennis grand slam'
-        ],
-        
-        'Science' => [
-            // Indonesian and English keywords for Science
-            'sains', 'ilmu', 'penelitian', 'eksperimen', 'laboratorium', 'penemuan', 'inovasi', 
-            'fisika', 'kimia', 'biologi', 'astronomi', 'ilmuwan', 'teori', 'hipotesis', 'bukti', 
-            'analisis', 'riset', 'metode', 'atom', 'molekul', 'galaksi', 'spesies', 'science',
-            'scientific', 'discovery', 'experiment', 'theory', 'hypothesis', 'nasa', 'spacecraft',
-            'telescope', 'microscope', 'genome', 'dna', 'evolution', 'particle', 'quantum',
-            'relativity', 'planet', 'solar system', 'tata surya', 'biotechnology', 'genetika',
-            'vaccine', 'vaksin', 'virus', 'bacteria', 'climate change', 'perubahan iklim',
-            'carbon', 'karbon', 'energy', 'energi', 'fossils', 'dinosaur', 'species', 'botany',
-            'zoology', 'geology', 'neuroscience', 'exoplanet', 'physics', 'chemistry', 'biology',
-            'nanotechnology', 'stem cell', 'genomics', 'neuron', 'space exploration', 'black hole',
-            'supernova', 'gravitational waves', 'dark matter', 'quantum physics', 'astronaut', 'space station'
-        ],
-        
-        'Health' => [
-            // Indonesian and English keywords for Health
-            'kesehatan', 'fitness', 'wellness', 'penyakit', 'obat', 'dokter', 'rumah sakit', 
-            'virus', 'diet', 'nutrisi', 'vitamin', 'vaksin', 'imunisasi', 'pandemi', 
-            'epidemi', 'medis', 'terapi', 'gizi', 'sehat', 'sakit', 'pasien', 'pengobatan',
-            'medical', 'medicine', 'hospital', 'clinic', 'klinik', 'pharmacy', 'apotek',
-            'medication', 'surgery', 'operasi', 'mental health', 'kesehatan mental', 'anxiety',
-            'depression', 'depresi', 'stress', 'diabetes', 'cancer', 'kanker', 'heart disease',
-            'penyakit jantung', 'stroke', 'cholesterol', 'kolesterol', 'blood pressure',
-            'tekanan darah', 'fitness', 'workout', 'exercise', 'rehabilitation', 'rehab',
-            'nutrition', 'healthy eating', 'healthcare', 'pills', 'prescription', 'health issues'
-        ]
+        'Politics' => ['ucup'],
+        'Technology' => ['ujang'],
+        'Entertainment' => ['eji'],
+        'Sports' => ['ojan'],
+        'Science' => ['afdhal'],
+        'Health' => ['maul']
     ];
     
+    // Pemetaan kategori Indonesia ke Inggris (untuk hasil API)
+    private $categoryMapping = [
+        // Indonesia => English
+        'Politik' => 'Politics',
+        'Teknologi' => 'Technology',
+        'Hiburan' => 'Entertainment',
+        'Olahraga' => 'Sports',
+        'Sains' => 'Science',
+        'Kesehatan' => 'Health',
+        'Pendidikan' => 'Education',
+        'Bisnis' => 'Business',
+        'Seni' => 'Art',
+        'Travel' => 'Travel',
+        'Makanan' => 'Food',
+        'Fashion' => 'Fashion'
+    ];
+    
+    // Gemini API configuration
+    private $gemini_api_key;
+    private $use_ai;
+    
+    public function __construct($gemini_api_key = null) {
+        // If API key is provided, use AI for categorization
+        $this->gemini_api_key = $gemini_api_key;
+        $this->use_ai = !empty($gemini_api_key);
+        
+        if ($this->use_ai) {
+            error_log("AI-based categorization enabled using Google Gemini 2.0 Flash");
+        } else {
+            error_log("Using keyword-based categorization (AI disabled)");
+        }
+    }
+    
     /**
-     * Analyze content and determine categories with improved detection
+     * Analyze content and determine categories using AI or keywords
      * 
      * @param string $content The post content to analyze
      * @return array List of category names that match the content
      */
     public function analyzeContent($content) {
+        if ($this->use_ai) {
+            $aiCategories = $this->analyzeContentWithGemini($content);
+            if (!empty($aiCategories) && $aiCategories[0] !== 'Uncategorized') {
+                error_log("Using AI-determined categories: " . implode(", ", $aiCategories));
+                return $aiCategories;
+            }
+            error_log("AI categorization failed, falling back to keyword analysis");
+        }
+        
+        // Fallback to keyword analysis if AI fails or is not enabled
+        return $this->analyzeContentWithKeywords($content);
+    }
+    
+    /**
+     * Analyze content using Google Gemini API
+     * 
+     * @param string $content The post content to analyze
+     * @return array List of category names that match the content
+     */
+    private function analyzeContentWithGemini($content) {
+        // Truncate content if too long
+        $truncated_content = substr($content, 0, 1000);
+        
+        try {
+            error_log("Analyzing content with Gemini AI: " . substr($truncated_content, 0, 100) . "...");
+            
+            // Prepare the API request
+            $response = $this->callGeminiAPI($truncated_content);
+            
+            // Check if response contains error
+            if (isset($response['error'])) {
+                error_log("Gemini API error: " . json_encode($response['error']));
+                return ['Uncategorized'];
+            }
+            
+            // Check for valid response structure
+            if (isset($response['candidates']) && 
+                !empty($response['candidates']) && 
+                isset($response['candidates'][0]['content']) && 
+                isset($response['candidates'][0]['content']['parts']) && 
+                !empty($response['candidates'][0]['content']['parts']) && 
+                isset($response['candidates'][0]['content']['parts'][0]['text'])) {
+                
+                $aiResponse = $response['candidates'][0]['content']['parts'][0]['text'];
+                error_log("Gemini API response: " . $aiResponse);
+                
+                // Parse the category predictions from the AI response
+                $categories = $this->parseCategoriesFromAIResponse($aiResponse);
+                
+                if (empty($categories)) {
+                    error_log("No categories found in AI response");
+                    return ['Uncategorized'];
+                }
+                
+                // Map categories from Indonesian to English if needed
+                $mappedCategories = $this->mapCategoriesToEnglish($categories);
+                
+                error_log("Gemini returned categories: " . implode(", ", $categories) . 
+                         " -> Mapped to: " . implode(", ", $mappedCategories));
+                
+                return $mappedCategories;
+            } else {
+                error_log("Invalid Gemini API response structure: " . json_encode($response));
+                return ['Uncategorized'];
+            }
+        } catch (Exception $e) {
+            error_log("Error in Gemini AI categorization: " . $e->getMessage());
+            return ['Uncategorized'];
+        }
+    }
+    
+    /**
+     * Map categories from Indonesian to English using the categoryMapping
+     *
+     * @param array $categories List of categories to map
+     * @return array Mapped categories in English
+     */
+    private function mapCategoriesToEnglish($categories) {
+        $mappedCategories = [];
+        
+        foreach ($categories as $category) {
+            // Check if this category needs mapping
+            if (isset($this->categoryMapping[$category])) {
+                $mappedCategories[] = $this->categoryMapping[$category];
+                error_log("Mapped category: $category -> " . $this->categoryMapping[$category]);
+            } else {
+                // If no mapping exists, keep the original category
+                $mappedCategories[] = $category;
+                error_log("No mapping for category: $category, keeping original");
+            }
+        }
+        
+        return $mappedCategories;
+    }
+    
+    /**
+     * Make an API call to Google Gemini
+     * 
+     * @param string $content Content to analyze
+     * @return array API response
+     */
+    private function callGeminiAPI($content) {
+        // Using gemini-2.0-flash model
+        $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' . $this->gemini_api_key;
+        
+        error_log("Using Gemini API endpoint with model gemini-2.0-flash: " . $url);
+        
+        // PENTING: Beritahu model untuk mengembalikan kategori dalam bahasa Inggris!
+        $prompt = "Analyze the following text and categorize it into one or more of these categories: Politics, Technology, Entertainment, Sports, Science, Health, Business, Education, Art, Travel, Food, Fashion. Only return the most relevant categories (maximum 3) as a comma-separated list. For example: 'Technology, Science' or 'Politics, Business'. DO NOT include any other text or explanation in your response. Content to analyze: " . $content;
+        
+        $data = [
+            'contents' => [
+                [
+                    'parts' => [
+                        [
+                            'text' => $prompt
+                        ]
+                    ]
+                ]
+            ],
+            'generationConfig' => [
+                'temperature' => 0.2,
+                'maxOutputTokens' => 50
+            ]
+        ];
+        
+        // Debug request
+        error_log("Gemini API request data: " . json_encode($data));
+        
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json'
+        ]);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30); // 30 second timeout
+        
+        // Enable verbose debugging for curl
+        curl_setopt($ch, CURLOPT_VERBOSE, true);
+        $verbose = fopen('php://temp', 'w+');
+        curl_setopt($ch, CURLOPT_STDERR, $verbose);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        
+        // Log HTTP status
+        error_log("Gemini API HTTP status: " . $httpCode);
+        
+        // If there was an error, log the verbose output
+        if ($httpCode != 200 || $error) {
+            rewind($verbose);
+            $verboseLog = stream_get_contents($verbose);
+            error_log("Gemini API verbose log: " . $verboseLog);
+            error_log("Gemini API raw response: " . $response);
+        }
+        
+        if ($error) {
+            error_log("Gemini API cURL error: " . $error);
+            curl_close($ch);
+            throw new Exception("cURL Error: $error");
+        }
+        
+        curl_close($ch);
+        
+        $decodedResponse = json_decode($response, true);
+        
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            error_log("JSON decode error: " . json_last_error_msg());
+            throw new Exception("Failed to parse JSON response: " . json_last_error_msg());
+        }
+        
+        return $decodedResponse;
+    }
+    
+    /**
+     * Parse the AI response to extract categories
+     * 
+     * @param string $aiResponse The response from the AI API
+     * @return array List of category names
+     */
+    private function parseCategoriesFromAIResponse($aiResponse) {
+        // Clean up the response
+        $aiResponse = trim($aiResponse);
+        
+        // Split by commas to get individual categories
+        $categories = array_map('trim', explode(',', $aiResponse));
+        
+        // Filter out any empty entries and limit to maximum of 3 categories
+        $categories = array_filter($categories);
+        $categories = array_slice($categories, 0, 3);
+        
+        error_log("AI parsed categories: " . implode(', ', $categories));
+        return $categories;
+    }
+    
+    /**
+     * Original keyword-based content analysis (as fallback)
+     * 
+     * @param string $content The post content to analyze
+     * @return array List of category names that match the content
+     */
+    private function analyzeContentWithKeywords($content) {
         $content = strtolower($content);
         $matchedCategories = [];
         
         // Log the content for debugging
-        error_log("Analyzing content: " . substr($content, 0, 100) . "...");
+        error_log("Analyzing content with keywords: " . substr($content, 0, 100) . "...");
+        
+        // Make sure $this->categories is defined and is an array
+        if (!isset($this->categories) || !is_array($this->categories)) {
+            error_log("Categories array is not properly defined");
+            return ['Uncategorized'];
+        }
         
         foreach ($this->categories as $category => $keywords) {
             $matches = 0;
             $matchedKeywords = [];
             
+            if (!is_array($keywords)) {
+                error_log("Keywords for category {$category} is not an array");
+                continue;
+            }
+            
             foreach ($keywords as $keyword) {
                 $keywordLower = strtolower($keyword);
                 // Improved word boundary detection for better accuracy
-                // This checks for full words rather than partial matches
                 if (preg_match('/\b' . preg_quote($keywordLower, '/') . '\b/iu', $content)) {
                     $matches++;
                     $matchedKeywords[] = $keyword;
@@ -147,8 +311,13 @@ class ContentAnalyzer {
         
         // Return top 3 categories at most
         $topCategories = array_slice(array_keys($matchedCategories), 0, 3);
-        error_log("Top categories detected: " . implode(', ', $topCategories));
         
+        if (empty($topCategories)) {
+            error_log("No categories detected through keyword analysis");
+            return ['Uncategorized'];
+        }
+        
+        error_log("Top categories detected: " . implode(', ', $topCategories));
         return $topCategories;
     }
     
@@ -156,14 +325,85 @@ class ContentAnalyzer {
      * Debug analysis of content
      * 
      * @param string $content The content to analyze
-     * @return array Debug information about keyword matches
+     * @return array Debug information about the categorization
      */
     public function debugAnalysis($content) {
+        if ($this->use_ai) {
+            try {
+                $truncated_content = substr($content, 0, 1000);
+                $response = $this->callGeminiAPI($truncated_content);
+                
+                // Check if response contains error
+                if (isset($response['error'])) {
+                    return [
+                        'method' => 'Gemini AI-based categorization (failed)',
+                        'error' => $response['error']['message'] ?? 'Unknown error',
+                        'api_response' => $response,
+                        'fallback_result' => $this->debugKeywordAnalysis($content)
+                    ];
+                }
+                
+                // Check response structure
+                if (isset($response['candidates']) && 
+                    !empty($response['candidates']) && 
+                    isset($response['candidates'][0]['content']) && 
+                    isset($response['candidates'][0]['content']['parts']) && 
+                    !empty($response['candidates'][0]['content']['parts']) && 
+                    isset($response['candidates'][0]['content']['parts'][0]['text'])) {
+                    
+                    $categories = $this->parseCategoriesFromAIResponse($response['candidates'][0]['content']['parts'][0]['text']);
+                    $mappedCategories = $this->mapCategoriesToEnglish($categories);
+                    
+                    return [
+                        'method' => 'Gemini AI-based categorization',
+                        'api_response' => $response,
+                        'categories' => $categories,
+                        'mapped_categories' => $mappedCategories
+                    ];
+                } else {
+                    return [
+                        'method' => 'Gemini AI-based categorization (invalid response)',
+                        'api_response' => $response,
+                        'error' => 'Invalid response structure',
+                        'fallback_result' => $this->debugKeywordAnalysis($content)
+                    ];
+                }
+            } catch (Exception $e) {
+                return [
+                    'method' => 'Gemini AI-based categorization (failed)',
+                    'error' => $e->getMessage(),
+                    'fallback_result' => $this->debugKeywordAnalysis($content)
+                ];
+            }
+        } else {
+            return $this->debugKeywordAnalysis($content);
+        }
+    }
+    
+    /**
+     * Debug keyword analysis of content
+     * 
+     * @param string $content The content to analyze
+     * @return array Debug information about keyword matches
+     */
+    private function debugKeywordAnalysis($content) {
         $content = strtolower($content);
         $results = [];
         
+        // Make sure $this->categories is defined and is an array
+        if (!isset($this->categories) || !is_array($this->categories)) {
+            error_log("Categories array is not properly defined in debugKeywordAnalysis");
+            return ['method' => 'Keyword-based categorization', 'categories' => []];
+        }
+        
         foreach ($this->categories as $category => $keywords) {
             $matches = [];
+            
+            if (!is_array($keywords)) {
+                error_log("Keywords for category {$category} is not an array in debugKeywordAnalysis");
+                continue;
+            }
+            
             foreach ($keywords as $keyword) {
                 $keywordLower = strtolower($keyword);
                 if (preg_match('/\b' . preg_quote($keywordLower, '/') . '\b/iu', $content)) {
@@ -179,7 +419,10 @@ class ContentAnalyzer {
             }
         }
         
-        return $results;
+        return [
+            'method' => 'Keyword-based categorization',
+            'categories' => $results
+        ];
     }
     
     /**
@@ -211,7 +454,7 @@ class ContentAnalyzer {
     }
     
     /**
-     * Assign categories to a post based on content analysis with improved error handling
+     * Assign categories to a post based on content analysis
      * 
      * @param PDO $pdo Database connection
      * @param int $postId Post ID
@@ -245,22 +488,27 @@ class ContentAnalyzer {
             // Commit transaction
             $pdo->commit();
             
-            // Double-check the assignments
-            $checkStmt = $pdo->prepare("
-                SELECT c.id, c.name 
-                FROM categories c
-                JOIN post_categories pc ON c.id = pc.category_id
-                WHERE pc.post_id = ?
-            ");
-            $checkStmt->execute([$postId]);
-            $actualCategories = $checkStmt->fetchAll(PDO::FETCH_ASSOC);
-            error_log("Verified categories for post {$postId}: " . json_encode($actualCategories));
-            
             return $assignedCategories;
         } catch (Exception $e) {
             // Rollback transaction on error
             $pdo->rollBack();
             error_log("Error in assignCategoriesToPost: " . $e->getMessage());
+            return [];
+        }
+    }
+    
+    /**
+     * Get all available categories
+     * 
+     * @param PDO $pdo Database connection
+     * @return array List of all categories
+     */
+    public function getAllCategories($pdo) {
+        try {
+            $stmt = $pdo->query("SELECT id, name FROM categories ORDER BY name");
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error getting all categories: " . $e->getMessage());
             return [];
         }
     }
@@ -284,22 +532,6 @@ class ContentAnalyzer {
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             error_log("Error getting categories for post: " . $e->getMessage());
-            return [];
-        }
-    }
-    
-    /**
-     * Get all available categories
-     * 
-     * @param PDO $pdo Database connection
-     * @return array List of all categories
-     */
-    public function getAllCategories($pdo) {
-        try {
-            $stmt = $pdo->query("SELECT id, name FROM categories ORDER BY name");
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            error_log("Error getting all categories: " . $e->getMessage());
             return [];
         }
     }
