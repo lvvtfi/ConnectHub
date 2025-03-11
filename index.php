@@ -10,6 +10,7 @@ if (!isset($_COOKIE['user_identifier'])) {
 include 'includes/db.php';
 include 'includes/auth.php';
 include 'includes/FileHandler.php';
+include 'includes/config.php';
 include 'includes/ContentAnalyzer.php';
 
 // Turn on error reporting in development mode
@@ -17,7 +18,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 // Initialize ContentAnalyzer
-$contentAnalyzer = new ContentAnalyzer();
+$contentAnalyzer = new ContentAnalyzer(GEMINI_API_KEY);
 
 // Process posting directly from index page (including guest mode)
 $postSuccess = null;
